@@ -38,4 +38,6 @@ Which looks like this
              18 RETURN_VALUE
 ```
 
-Based on this syntax is our interpreter written (implemented with less scope)
+The first column is the source line number. Second column is the bytecode index. Third column 
+is the instruction. Fourth column is the the argument to the instruction. Fifth column is the
+argument value. Based on this syntax is our interpreter written (implemented with less scope)
