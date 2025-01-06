@@ -1,19 +1,23 @@
 from tiny_interpreter import Interpreter
 
-# Testing
+"""
+It is important to note that these well formated instructions should be the result of the compiler,
+the interpreter is the last phase
+"""
 
 """
 This dictionary has 2 arrays corresponding to (instruction, argument) and data.
 Can be viewd as variables in the data segment of the memory
-It is important to note that these well formated instructions should be the result of the compiler,
-the interpreter is the last phase
 """
+
+# Test 1: 7 + 5
+
 what_to_excecute = {
   # This is basically an array of tuples
   "instructions": [
                   # Instruction | arguments
-                  ("LOAD_VALUE", 0), # 0 = First elemnt of the array
-                  ("LOAD_VALUE", 1), # 1 = Second element of the array
+                  ("LOAD_VALUE", 0), 
+                  ("LOAD_VALUE", 1), 
                   ("ADD_TWO_VALUES", None),
                   ("PRINT_ANSWER", None)
                   ],
@@ -25,11 +29,13 @@ interpreter = Interpreter()
 
 interpreter.run_code(what_to_excecute)
 
+# Test 2: (7 + 5) + 8
+
 what_to_excecute = {
   "instructions": [
                   # Instruction | arguments
-                  ("LOAD_VALUE", 0), # 0 = First elemnt of the array
-                  ("LOAD_VALUE", 1), # 1 = Second element of the array
+                  ("LOAD_VALUE", 0), 
+                  ("LOAD_VALUE", 1), 
                   ("ADD_TWO_VALUES", None),
                   ("LOAD_VALUE", 2), 
                   ("ADD_TWO_VALUES", None),
@@ -41,6 +47,8 @@ what_to_excecute = {
 
 interpreter = Interpreter()
 interpreter.run_code(what_to_excecute)
+
+# Test 3: a + b | a = 1, b = 2
 
 """
 Notice that now we are introducing new OPCODES: STORE_NAME and LOAD_NAME so the arguments can point to
