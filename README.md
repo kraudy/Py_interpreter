@@ -57,7 +57,7 @@ argument value. Based on this syntax is our interpreter written (implemented wit
 
 Our tiny interpreter takes this last representation and executes it implementing a stack machine.
 
-Another example
+## While loop example 
 
 ```py
 def loop():
@@ -107,3 +107,37 @@ Human readable
   3     >>   24 LOAD_CONST               0 (None)
              26 RETURN_VALUE
 ```
+
+## List comprehension example
+
+```py
+def gen():
+  x = [i for i in range(5)]
+  return x
+```
+
+```asm
+  2           0 LOAD_CONST               1 (<code object <listcomp> at 0x7f53cc04d790, file "<stdin>", line 2>)
+              2 LOAD_CONST               2 ('gen.<locals>.<listcomp>')
+              4 MAKE_FUNCTION            0
+              6 LOAD_GLOBAL              0 (range)
+              8 LOAD_CONST               3 (5)
+             10 CALL_FUNCTION            1
+             12 GET_ITER
+             14 CALL_FUNCTION            1
+             16 STORE_FAST               0 (x)
+
+  3          18 LOAD_FAST                0 (x)
+             20 RETURN_VALUE
+
+Disassembly of <code object <listcomp> at 0x7f53cc04d790, file "<stdin>", line 2>:
+  2           0 BUILD_LIST               0
+              2 LOAD_FAST                0 (.0)
+        >>    4 FOR_ITER                 4 (to 14)
+              6 STORE_FAST               1 (i)
+              8 LOAD_FAST                1 (i)
+             10 LIST_APPEND              2
+             12 JUMP_ABSOLUTE            2 (to 4)
+        >>   14 RETURN_VALUE
+```
+
