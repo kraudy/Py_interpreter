@@ -57,7 +57,31 @@ argument value. Based on this syntax is our interpreter written (implemented wit
 
 Our tiny interpreter takes this last representation and executes it implementing a stack machine.
 
-## While loop example 
+# Useful commands
+
+```py
+# To disassemble in human readable form
+dis.dis(function)
+```
+
+```py
+# To show bytecode in raw hexadecimal 
+function.__code__.co_code
+```
+
+```py
+# To show bytecode in deciaml value 
+list(function.__code__.co_code)
+```
+
+```py
+# To show bytecode name
+[dis.opname[i] for i in list(function.__code__.co_code)]
+```
+
+# Examples
+
+## While loop 
 
 ```py
 def loop():
@@ -66,26 +90,6 @@ def loop():
     x = x + 1
     return x
 ```
-
-Hexadecimal
-
-```asm
-b'd\x01}\x00|\x00d\x02k\x00r\x0c|\x00d\x01\x17\x00}\x00|\x00S\x00d\x00S\x00'
-```
-
-Decimal
-
-```py
-[100, 1, 125, 0, 124, 0, 100, 2, 107, 0, 114, 12, 124, 0, 100, 1, 23, 0, 125, 0, 124, 0, 83, 0, 100, 0, 83, 0]
-```
-
-Operations
-
-```py
-['LOAD_CONST', 'POP_TOP', 'STORE_FAST', '<0>', 'LOAD_FAST', '<0>', 'LOAD_CONST', 'ROT_TWO', 'COMPARE_OP', '<0>', 'POP_JUMP_IF_FALSE', 'UNARY_NOT', 'LOAD_FAST', '<0>', 'LOAD_CONST', 'POP_TOP', 'BINARY_ADD', '<0>', 'STORE_FAST', '<0>', 'LOAD_FAST', '<0>', 'RETURN_VALUE', '<0>', 'LOAD_CONST', '<0>', 'RETURN_VALUE', '<0>']
-```
-
-Human readable
 
 ```asm
   2           0 LOAD_CONST               1 (1)
@@ -108,7 +112,33 @@ Human readable
              26 RETURN_VALUE
 ```
 
-## List comprehension example
+## For loop 
+
+```py
+def myfor():
+  for i in range(5):
+          x += i
+```
+
+```asm
+  2           0 LOAD_GLOBAL              0 (range)
+              2 LOAD_CONST               1 (5)
+              4 CALL_FUNCTION            1
+              6 GET_ITER
+        >>    8 FOR_ITER                 6 (to 22)
+             10 STORE_FAST               0 (i)
+
+  3          12 LOAD_FAST                1 (x)
+             14 LOAD_FAST                0 (i)
+             16 INPLACE_ADD
+             18 STORE_FAST               1 (x)
+             20 JUMP_ABSOLUTE            4 (to 8)
+
+  2     >>   22 LOAD_CONST               0 (None)
+             24 RETURN_VALUE
+```
+
+## List comprehension 
 
 ```py
 def gen():
@@ -141,3 +171,4 @@ Disassembly of <code object <listcomp> at 0x7f53cc04d790, file "<stdin>", line 2
         >>   14 RETURN_VALUE
 ```
 
+# References
