@@ -5,7 +5,7 @@ which should not be a problem since it is done for learning sake
 
 class Interpreter:
   def __init__(self):
-    self.stack = [] # Remember this stack is only a list, not the actual memory page segment assigned to the thread
+    self.stack = [] # This is the data stack (similar to data segment)
     self.environment = {} # Used for storing variables
   
   def show_stack(self, function):
