@@ -16,6 +16,7 @@ class VirtualMachine(object):
     """Entry point of bytecode execution"""
     # Creation of initial frame on which the code will start executing
     frame = self.make_frame(code, global_names=global_names, local_names=local_names)
+    # The execution of the code is done inside the frame
     self.run_frame(frame)
 
   def make_frame(self, code, callargs={}, global_names=None, local_names=None):
@@ -34,6 +35,20 @@ class VirtualMachine(object):
     local_names.update(callargs)
     frame = Frame(code, global_names, local_names, self.frame)
     return frame
+
+  def push_frame(self, frame):
+    self.frames.append(frame)
+    self.frame = frame
+  
+  def pop_frame(self):
+    self.frames.pop()
+    if self.frames:
+      self.frame = self.frames[-1]
+    else:
+      self.frame = None
+
+  def run_frame(self):
+    pass
 
 """
 A Frame is like the context of execution of the bytecode
