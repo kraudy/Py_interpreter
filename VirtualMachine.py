@@ -38,6 +38,7 @@ class VirtualMachine(object):
     frame = Frame(code, global_names, local_names, self.frame)
     return frame
 
+  # Frame stack manipulation
   def push_frame(self, frame):
     self.frames.append(frame)
     self.frame = frame
@@ -52,6 +53,25 @@ class VirtualMachine(object):
   def run_frame(self):
     pass
 
+  # Data stack manipulation
+  def top(self):
+    return self.frame.stack[-1]
+  
+  def pop(self):
+    return self.frame.stack.pop()
+
+  def push(self, *vals):
+    self.frame.stack.extend(vals)
+  
+  def popn(self, n):
+    """Pop n values from the stack"""
+    if n:
+      ret = self.frame.stack[-n:]
+      self.frame.stack[-n:] = []
+      return ret
+    else:
+      return []
+
 """
 A Frame is like the context of execution of the bytecode
 """
@@ -61,6 +81,7 @@ class Frame(object):
     self.global_names = global_names
     self.local_names = local_names
     self.prev_frame = prev_frame
+    # Data stack of the frame
     self.stack = []
     if prev_frame:
       self.builtin_names = prev_frame.builtin_names
