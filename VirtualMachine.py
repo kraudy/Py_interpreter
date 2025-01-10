@@ -3,6 +3,7 @@ This is a more complete implementation than tiny_interpreter, closer to Cpython
 """
 import types
 import inspect
+import dis
 
 class VirtualMachineError(Exception):
   pass
@@ -71,6 +72,33 @@ class VirtualMachine(object):
       return ret
     else:
       return []
+
+  def parse_byte_and_args(self):
+    f = self.frame
+    opoffset = f.last_instruction
+    byteCode = f.code_obj.co_code[opoffset]
+    f.last_instruction += 1
+    byte_name = dis.opname[byteCode]
+    if byteCode >= dis.HAVE_ARGUMENT:
+      # index into bytecode
+      arg = f.code_obj.co_code[f.last_instruction : f.last_instruction + 2]
+      f.last_instruction += 2 # Advance instruction pointer
+      arg_val = arg[0] + (arg[1] * 256)
+      if byteCode in dis.hasconst: # Look up a constant
+        arg = f.code_obj.co_const[arg_val]
+      elif byteCode in dis.hasname: # Look up name
+        arg = f.code_obj.co_names[arg_val]
+      elif byteCode in dis.haslocal: # Look up local name
+        arg = f.code_obj.co_varnames[arg_val]
+      elif byteCode in dis.hasjrel: # Calculate a relative jump
+        arg = f.last_instruction + arg_val
+      else:
+        arg = arg_val
+      argument = [arg]
+    else:
+      argument = []
+
+    return byte_name, argument
 
 """
 A Frame is like the context of execution of the bytecode
