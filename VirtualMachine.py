@@ -4,6 +4,7 @@ This is a more complete implementation than tiny_interpreter, closer to Cpython
 import types
 import inspect
 import dis
+import sys
 
 class VirtualMachineError(Exception):
   pass
@@ -100,6 +101,29 @@ class VirtualMachine(object):
 
     return byte_name, argument
 
+  def dispatch(self, byte_name, argument):
+    """Dispatch bytename to corresponding method.
+    Exceptions are caught and set on the virtual machine"""
+
+    # Reason to unwinding the stack
+    why = None
+    try:
+      bytecode_fn = getattr(self, 'byte_%s' % byte_name, None)
+      if bytecode_fn is None:
+        if byte_name.startswith('UNARY_'):
+          self.unaryOperator(byte_name[6:])
+        elif byte_name.startswith('BINARY_'):
+          self.binaryOperator(byte_name[7:])
+        else:
+          raise VirtualMachineError(
+            "unsupported bytecode type: %s" % byte_name
+          )
+      else:
+          why = bytecode_fn(*argument)
+    except:
+      # deals with exception encountered while executing the op
+      self.last_exception = sys.exc_info()[:2] + (None,)
+      why = 'exception'
 """
 A Frame is like the context of execution of the bytecode
 """
