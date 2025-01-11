@@ -124,6 +124,32 @@ class VirtualMachine(object):
       # deals with exception encountered while executing the op
       self.last_exception = sys.exc_info()[:2] + (None,)
       why = 'exception'
+
+  def run_frame(self, frame):
+    """Run frame until it returns"""  
+    self.push_frame(frame)
+    while True:
+      byte_name, arguments = self.parse_byte_and_args()
+
+      why = self.dispatch(byte_name, arguments)
+
+      # Deal with block management
+      while why and frame.block_stack:
+        why = self.manage_block_stack(why)
+      
+      if why:
+        break
+    
+    self.pop_frame()
+
+    if why == 'exception':
+      exc, val, tb = self.last_exception
+      e = exc(val)
+      e.__traceback__ = tb
+      raise e
+
+    return self.return_value
+
 """
 A Frame is like the context of execution of the bytecode
 """
