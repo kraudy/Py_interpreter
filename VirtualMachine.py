@@ -138,6 +138,39 @@ class VirtualMachine(object):
     
     return why
 
+  # Stack manipulation
+  def byte_LOAD_CONST(self, const):
+    self.push(const)
+
+  def byte_POP_TOP(self):
+    self.pop()
+
+  # Names
+  def byte_LOAD_NAME(self, name):
+    frame = self.frame
+    if name in frame.f_locals:
+      val = frame.f_locals[name]
+    elif name in frame.f_globals:
+      val = frame.f_globals[name]
+    elif name in frame.f_builtins:
+      val = frame.f_builtins[name]
+    else:
+      raise NameError("name '%s' is not defined" % name)
+    
+    self.push(val)
+  
+  def byte_STORE_NAME(self, name):
+    self.frame.f_locals[name] = self.pop()
+  
+  def byte_LOAD_FAST(self, name):
+    if name in self.frame.f_locals:
+      val = self.frame.f_locals[name]
+    else:
+      raise UnboundLocalError(
+        "local variable '%s' referenced before assignment" %name
+      )
+    self.push(val)
+
   def parse_byte_and_args(self):
     f = self.frame
     opoffset = f.last_instruction
