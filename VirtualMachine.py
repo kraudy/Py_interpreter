@@ -6,6 +6,7 @@ import inspect
 import dis
 import sys
 import collections
+import operator
 
 class VirtualMachineError(Exception):
   pass
@@ -170,6 +171,58 @@ class VirtualMachine(object):
         "local variable '%s' referenced before assignment" %name
       )
     self.push(val)
+
+  def byte_STORE_FAST(self, name):
+    self.frame.f_locals[name] = self.pop()
+  
+  def byte_LOAD_GLOBAL(self, name):
+    f = self.frame
+    if name in f.f_globals:
+      val = f.f_globals[name]
+    elif name in f.f_builtins:
+      val = f.f_builtins[name]
+    else:
+      raise NameError("global name '%s' is not defined" % name)
+    self.push(val)
+  
+  # Operators
+  BINARY_OPERATORS = {
+    'POWER': pow,
+    'MULTIPLY': operator.mul,
+    'FLOOR_DIVIDE': operator.floordiv,
+    'TRUE_DIVIDE': operator.truediv,
+    'MODULO': operator.mod,
+    'ADD':    operator.add,
+    'SUBSTRACT': operator.sub,
+    'SUBSCR': operator.getitem,
+    'LSHIFT': operator.lshift,
+    'RSHIFT': operator.rshift,
+    'AND':    operator.and_,
+    'XOR':    operator.xor,
+    'OR':     operator.or_
+  }
+
+  def binaryOperator(self, op):
+    x, y = self.popn(2)
+    self.push(self.BINARY_OPERATORS[op](x, y))
+  
+  COMPARE_OPERATORS = [
+    operator.lt,
+    operator.le,
+    operator.eq,
+    operator.ne,
+    operator.gt,
+    operator.ge,
+    lambda x, y: x in y,
+    lambda x, y: x not in y,
+    lambda x, y: x is y,
+    lambda x, y: x is not y,
+    lambda x, y: issubclass(x, Exception) and issubclass(x, y)
+  ]
+
+  def byte_COMPARE_OP(self, opnum):
+    x, y = self.popn(2)
+    self.push(self.COMPARE_OPERATORS[opnum](x, y))
 
   def parse_byte_and_args(self):
     f = self.frame
