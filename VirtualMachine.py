@@ -5,9 +5,12 @@ import types
 import inspect
 import dis
 import sys
+import collections
 
 class VirtualMachineError(Exception):
   pass
+
+Block = collections.namedtuple("Block", "type, handler, stack_height")
 
 class VirtualMachine(object):
   def __init__(self):
@@ -73,6 +76,29 @@ class VirtualMachine(object):
       return ret
     else:
       return []
+    
+  # Block stack manipulation
+  def push_block(self, b_type, handler=None):
+    stack_height = len(self.frame.stack)
+    self.frame.block_stack.append(Block(b_type, handler, stack_height))
+
+  def pop_block(self):
+    return self.frame.block_stack.pop()
+
+  def unwind_block(self, block):
+    """Unwind value of data stack corresponding to a block"""
+    if block.type == 'except-handler':
+      # The exception is on the stack as type, value, and traceback.
+      offset = 3
+    else:
+      offset = 0
+    
+    while len(self.frame.stack) > block.level + offset:
+      self.pop()
+
+    if block.type == 'except-handler':
+      traceback, value, exctype = self.popn(3)
+      self.last_exception = exctype, value, traceback
 
   def parse_byte_and_args(self):
     f = self.frame
