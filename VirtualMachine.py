@@ -223,6 +223,34 @@ class VirtualMachine(object):
   def byte_COMPARE_OP(self, opnum):
     x, y = self.popn(2)
     self.push(self.COMPARE_OPERATORS[opnum](x, y))
+  
+  # Attributes and indexing
+  def byte_LOAD_ATTR(self, attr):
+    obj = self.pop()
+    val = getattr(obj, attr)
+    self.push(val)
+  
+  def byte_STORE_ATTR(self, name):
+    val, obj = self.popn(2)
+    setattr(obj, name, val)
+
+  # Building
+  def byte_BUILD_LIST(self, count):
+    elts = self.popn(count)
+    self.push(elts)
+  
+  def byte_BUILD_MAP(self, size):
+    self.push({}) # ?
+  
+  def byte_STORE_MAP(self):
+    the_map, val, key = self.popn(3)
+    the_map[key] = val
+    self.push(the_map)
+  
+  def byte_LIST_APPEND(self, count):
+    val = self.pop()
+    the_list = self.frame.stack(-count) # peek
+    the_list.append(val)
 
   def parse_byte_and_args(self):
     f = self.frame
