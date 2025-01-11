@@ -290,6 +290,29 @@ class VirtualMachine(object):
   
   def byte_POP_BLOCK(self):
     self.pop_block()
+  
+  # Functions
+  def byte_MAKE_FUNCTION(self, argc):
+    # Note the order
+    name = self.pop()
+    code = self.pop()
+    defaults = self.popn(argc)
+    globs = self.frame.f_globals
+    fn = Function(name, code, globs, defaults, None, self)
+    self.push(fn)
+  
+  def byte_CALL_FUNCTION(self, arg):
+    lenKw, lenPos = divmod(arg, 256) # KWargs not supported hede | ?
+    posargs = self.popn(lenPos)
+
+    func = self.pop()
+    frame = self.frame
+    retval = func(*posargs)
+    self.push(retval)
+  
+  def byte_RETURN_VALUE(self):
+    self.return_value = self.pop()
+    return "return"
 
   def parse_byte_and_args(self):
     f = self.frame
