@@ -251,6 +251,45 @@ class VirtualMachine(object):
     val = self.pop()
     the_list = self.frame.stack(-count) # peek
     the_list.append(val)
+  
+  # Jumps
+  def byte_JUMP_FORWARD(self, jump):
+    self.jump(jump)
+
+  def byte_JUMP_ABSOLUTE(self, jump):
+    self.jump(jump)
+
+  def byte_POP_JUMP_IF_TRUE(self, jump):
+    val = self.pop()
+    if val:
+      self.jump(jump)
+
+  def byte_POP_JUMP_IF_FALSE(self, jump):
+    val = self.pop()
+    if not val:
+      self.jump(jump)
+    
+  # Blocks
+  def byte_SETUP_LOOP(self, dest):
+    self.push_block('loop', dest)
+
+  def byte_GET_ITER(self):
+    self.push(iter(self.pop()))
+  
+  def byte_FOR_ITER(self, jump):
+    iterobj = self.top()
+    try:
+      v = next(iterobj)
+      self.push(v)
+    except StopIteration:
+      self.pop()
+      self.jump(jump)
+    
+  def byte_BREAK_LOOP(self):
+    return 'break'
+  
+  def byte_POP_BLOCK(self):
+    self.pop_block()
 
   def parse_byte_and_args(self):
     f = self.frame
